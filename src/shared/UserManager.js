@@ -21,68 +21,43 @@ kc.onTokenExpired = () => {
 };
 
 kc.onAuthLogout = () => {
-    console.debug("-- Detect clearToken --");
-    //window.location.reload();
-    initOptions.onLoad = "login-required";
-    kc.init(initOptions).then((a) => {
-        if (a) {
-            console.log("check-sso", kc)
-            console.log("access token: ", kc.token)
-            console.log("refresh token: ", kc.refreshToken)
-        } else {
-            kc.logout();
-        }
-    })
-        .catch((err) => console.error(err));
-    //kc.login({redirectUri: window.location.href});
-};
+    console.log("-- LogOut --");
+    kc.logout();
+}
 
 const renewToken = (retry) => {
-    retry++;
     kc.updateToken(5)
-        .then((refreshed) => {
-            if (refreshed) {
-                console.log("Token updated: ", kc);
-                console.log("Refresh token exp : ", kc.refreshTokenParsed.exp - kc.refreshTokenParsed.iat);
+        .then(refreshed => {
+            if(refreshed) {
+                setData();
+            } else {
+                console.warn('Token is still valid?..');
             }
         })
-        .catch((err) => {
-            console.error(err)
-            renewRetry(retry);
+        .catch(() => {
+            retry++;
+            if(retry > 50) {
+                kc.clearToken();
+            } else {
+                setTimeout(() => {
+                    renewToken(retry);
+                }, 10000);
+            }
         });
-};
-
-const renewRetry = (retry) => {
-    if (retry > 50) {
-        kc.clearToken();
-    } else {
-        setTimeout(() => {
-            renewToken(retry);
-        }, 10000);
-    }
-};
+}
 
 const setData = () => {
     const {realm_access: {roles}, sub, given_name, name, email} = kc.tokenParsed;
     const user = {display: name, email, roles, id: sub, username: given_name};
-    mqtt.setToken(kc.token);
     return user;
 }
 
 export const getUser = (callback) => {
     kc.init(initOptions)
-        .then((authenticated) => {
-            if (authenticated) {
-                console.log("check-sso", kc)
-                console.log("access token: ", kc.token)
-                console.log("refresh token: ", kc.refreshToken)
-                const user = setData();
-                callback(user);
-            } else {
-                callback(null);
-            }
-        })
-        .catch((err) => console.error(err));
+        .then(authenticated => {
+            const user = authenticated ? setData() : null;
+            callback(user);
+        }).catch(err => console.error(err));
 };
 
 export default kc;

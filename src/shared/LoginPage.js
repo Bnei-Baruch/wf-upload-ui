@@ -51,10 +51,10 @@ class LoginPage extends Component {
                 <br />
                 <Message size='massive'>
                     <Message.Header>
-                        {this.props.user === null ? "Upload Service" : "Hello, "+this.props.user.username}
+                        {this.props.user === null ? "Upload Service" : "Welcome, "+this.props.user.username}
                         {this.props.user === null ? "" : profile}
                     </Message.Header>
-                    <p>It's page for for test</p>
+                    <p></p>
                     {this.props.user === null ? login : this.props.enter}
                     <p />
                 </Message>

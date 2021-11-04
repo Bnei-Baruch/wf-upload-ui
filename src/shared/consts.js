@@ -1,6 +1,5 @@
 
-export const MQTT_URL = process.env.REACT_APP_MQTT_URL;
-export const WEB_URL = process.env.REACT_APP_WEB_URL;
+export const WFUPLOAD_BACKEND = process.env.REACT_APP_WFUPLOAD_BACKEND;
 
 export const language_options = [
     { key: 'he', value: 'heb', flag: 'il', text: 'Hebrew' },
@@ -30,4 +29,9 @@ export const language_options = [
     { key: 'et', value: 'amh', flag: 'et', text: 'Amharic' },
     { key: 'in', value: 'hin', flag: 'in', text: 'Hindi' },
     { key: 'ir', value: 'per', flag: 'ir', text: 'Persian' },
+];
+
+export const type_options = [
+    { key: 'type1', value: 'type1', text: 'Type1' },
+    { key: 'type2', value: 'type2', text: 'Type2' },
 ];

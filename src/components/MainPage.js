@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
-import {Button} from "semantic-ui-react";
 import LoginPage from '../shared/LoginPage';
 import {kc} from "../shared/UserManager";
+import UploadApp from "./UploadApp";
 
 class MainPage extends Component {
 
@@ -23,21 +23,14 @@ class MainPage extends Component {
 
     render() {
 
-        const {user, roles} = this.state;
+        const {user} = this.state;
 
-        let opt = roles.map((role,i) => {
-            if(role === "bb_user") {
-                return (
-                    <Button key={i} size='massive' color='green' onClick={this.sendMessage} >
-                        Message
-                    </Button>);
-            }
-            return null
-        });
+        let login = <LoginPage user={user} checkPermission={this.checkPermission} />;
+        let content = <UploadApp />;
 
         return (
             <Fragment>
-                <LoginPage user={user} enter={opt} checkPermission={this.checkPermission} />
+                {user ? content : login}
             </Fragment>
 
         );
