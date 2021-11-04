@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Label,Progress,Message,Segment,Dropdown } from 'semantic-ui-react';
+import {Progress, Message, Header, Dropdown, Grid, Divider, Container, Segment} from 'semantic-ui-react';
 import Upload from 'rc-upload';
 import kc from "../shared/UserManager";
 import {WFUPLOAD_BACKEND, language_options, type_options} from "../shared/consts";
@@ -10,6 +10,8 @@ class UploadApp extends Component {
         language: "",
         type: "",
         percent: 0,
+        file_name: "",
+        file_link: "",
     };
 
     progress = (step) => {
@@ -18,67 +20,80 @@ class UploadApp extends Component {
     };
 
     uploadDone = () => {
-        this.setState({percent: 0})
+        const {language, type, file_name} = this.state;
+        this.setState({percent: 0, file_link: `${WFUPLOAD_BACKEND}/data/${language}/${type}/${file_name}`})
     };
+
+    onError = (err) => {
+        this.setState({percent: 0, file_link: "", file_name: ""})
+        alert(err)
+    }
 
     selectLanguage = (language) => {
         this.setState({language});
     };
 
     render() {
-        const {language, type} = this.state;
+        const {language, type, file_name, file_link, percent} = this.state;
 
         const props = {
             action: `${WFUPLOAD_BACKEND}/upload/${language}/${type}`,
             headers: {'Authorization': 'bearer ' + kc.token},
             type: 'drag',
             accept: '.mp4, .mp3, .zip',
-            beforeUpload(file) {
-                console.log('beforeUpload', file.name);
-            },
-            onStart(file) {
-                console.log('onStart', file.name);
-            },
-            onError(err) {
-                console.log('onError', err);
-            },
-
+            multiple: false,
         };
 
+        const show_upload = !!language && !!type;
+        const uploading = percent !== 0;
+
         return (
-            <Segment textAlign='center' className="ingest_segment" raised>
-                <Label attached='top' className="trimmed_label"></Label>
-                <Message>
-                    <Dropdown
-                        error={!language}
-                        placeholder="Language:"
-                        selection
-                        options={language_options}
-                        language={language}
-                        onChange={(e,{value}) => this.selectLanguage(value)}
-                        value={language} >
-                    </Dropdown>
-                    <Dropdown
-                        error={!type}
-                        placeholder="Type:"
-                        selection
-                        options={type_options}
-                        onChange={(e,{value}) => this.setState({type: value})}
-                        value={type} >
-                    </Dropdown>
-                    <p /><p />
-                    <Upload
-                        {...this.props}
-                        {...props}
-                        className="dropbox"
-                        onSuccess={this.uploadDone}
-                        onProgress={this.progress} >
-                        Drop file here or click me
-                    </Upload>
+            <Container textAlign='center' >
+                <p />
+                <Header as='h2'>WP Plugins Upload</Header>
+                <Segment raised>
+                    <Grid columns={2} textAlign='center'>
+                        <Divider vertical>&</Divider>
+                        <Grid.Column>
+                            <Dropdown
+                                error={!language}
+                                placeholder="Language:"
+                                selection
+                                options={language_options}
+                                language={language}
+                                onChange={(e,{value}) => this.selectLanguage(value)}
+                                value={language} >
+                            </Dropdown>
+                        </Grid.Column>
+                        <Grid.Column>
+                            <Dropdown
+                                error={!type}
+                                placeholder="Type:"
+                                selection
+                                options={type_options}
+                                onChange={(e,{value}) => this.setState({type: value})}
+                                value={type} >
+                            </Dropdown>
+                        </Grid.Column>
+                    </Grid>
+                </Segment>
+                    {show_upload ? <Message>
+                     <p />
+                        <Upload
+                            {...this.props}
+                            {...props}
+                            className="dropbox"
+                            disabled={uploading}
+                            onError={this.onError}
+                            onSuccess={this.uploadDone}
+                            onStart={(file) => this.setState({file_name: file.name})}
+                            onProgress={this.progress} >
+                            Drop file here or click me
+                        </Upload>
                     <p />
-                    <Progress label='' percent={this.state.percent} indicating progress='percent' />
-                </Message>
-            </Segment>
+                    <Progress label={uploading ? file_name : file_link} percent={this.state.percent} indicating progress='percent' />
+                    </Message> : null}
+            </Container>
         );
     }
 }
