@@ -12,7 +12,7 @@ class MainPage extends Component {
     };
 
     checkPermission = (user) => {
-        const trl_public = kc.hasRealmRole("bb_user");
+        const trl_public = kc.hasRealmRole("wp_plugin_upload");
         if(trl_public) {
             this.setState({user, roles: user.roles});
         } else {
