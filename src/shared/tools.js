@@ -6,4 +6,6 @@ export const getData = (path, cb) => fetch(`${path}`, {
             return response.json().then(data => cb(data));
         }
     })
-    .catch(ex => console.log(`get ${path}`, ex));
+    .catch(err => {
+        console.error("Can't get configuration from server. Error: " + err);
+    });

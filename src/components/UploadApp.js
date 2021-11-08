@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {Progress, Message, Header, Dropdown, Grid, Divider, Container, Segment} from 'semantic-ui-react';
 import Upload from 'rc-upload';
 import kc from "../shared/UserManager";
-import {WFUPLOAD_BACKEND, language_options, type_options} from "../shared/consts";
+import {WFUPLOAD_BACKEND} from "../shared/consts";
+import {getData} from "../shared/tools";
 
 class UploadApp extends Component {
 
@@ -12,6 +13,15 @@ class UploadApp extends Component {
         percent: 0,
         file_name: "",
         file_link: "",
+        type_options: [],
+        language_options: [],
+    };
+
+    componentDidMount() {
+        getData(`conf.json`, conf => {
+            const {language_options, type_options} = conf;
+            this.setState({language_options, type_options});
+        })
     };
 
     progress = (step) => {
@@ -34,7 +44,7 @@ class UploadApp extends Component {
     };
 
     render() {
-        const {language, type, file_name, file_link, percent} = this.state;
+        const {language, type, file_name, file_link, percent, type_options, language_options} = this.state;
 
         const props = {
             action: `${WFUPLOAD_BACKEND}/upload/${language}/${type}`,
